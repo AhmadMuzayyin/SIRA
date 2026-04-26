@@ -33,4 +33,9 @@ class Student extends Model
     {
         return $this->hasOne(StudentPrediction::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'aktif');
+    }
 }

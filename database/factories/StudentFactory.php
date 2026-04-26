@@ -18,7 +18,11 @@ class StudentFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'nis' => fake()->unique()->numerify('24####'),
+            'name' => fake()->name(),
+            'gender' => fake()->randomElement(['L', 'P']),
+            'room' => fake()->bothify('?#'),
+            'status' => 'aktif',
         ];
     }
 }

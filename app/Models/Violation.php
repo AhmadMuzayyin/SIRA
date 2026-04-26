@@ -24,4 +24,9 @@ class Violation extends Model
     {
         return $this->hasMany(StudentViolation::class);
     }
+
+    public function suggestedPredictions(): HasMany
+    {
+        return $this->hasMany(StudentPrediction::class, 'suggested_violation_id');
+    }
 }

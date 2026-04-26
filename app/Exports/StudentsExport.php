@@ -2,13 +2,22 @@
 
 namespace App\Exports;
 
-class StudentsExport
+use App\Models\Student;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
+class StudentsExport implements FromCollection, WithHeadings
 {
-    /**
-     * Create a new class instance.
-     */
-    public function __construct()
+    public function collection(): Collection
     {
-        //
+        return Student::query()
+            ->orderBy('name')
+            ->get(['nis', 'name', 'gender', 'room', 'status', 'created_at']);
+    }
+
+    public function headings(): array
+    {
+        return ['nis', 'name', 'gender', 'room', 'status', 'created_at'];
     }
 }
