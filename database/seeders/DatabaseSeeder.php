@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Student;
+use App\Models\StudentPrediction;
+use App\Models\StudentPreprocessing;
 use App\Models\StudentViolation;
 use App\Models\User;
 use App\Models\Violation;
@@ -69,7 +71,7 @@ class DatabaseSeeder extends Seeder
 
         $students = collect();
 
-        for ($index = 1; $index <= 50; $index++) {
+        for ($index = 1; $index <= 100; $index++) {
             $nis = sprintf('24%04d', $index);
 
             $students->push(
@@ -85,27 +87,128 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        $violationIds = Violation::query()->pluck('id')->values();
-        $baseDate = Carbon::parse('2026-01-01');
+        $studentIds = $students->pluck('id');
 
-        for ($index = 0; $index < 50; $index++) {
-            $student = $students[$index];
-            $violationId = $violationIds[$index % $violationIds->count()];
-            $occurredAt = $baseDate->copy()->addDays($index);
+        StudentViolation::query()->whereIn('student_id', $studentIds)->delete();
+        StudentPreprocessing::query()->whereIn('student_id', $studentIds)->delete();
+        StudentPrediction::query()->whereIn('student_id', $studentIds)->delete();
 
-            StudentViolation::query()->updateOrCreate(
-                [
+        $violations = Violation::query()->with('criterion')->get();
+        $allViolationIds = $violations->pluck('id')->all();
+        $ringanViolationIds = $violations
+            ->filter(fn (Violation $violation): bool => $violation->criterion?->category === 'ringan')
+            ->pluck('id')
+            ->all();
+        $sedangViolationIds = $violations
+            ->filter(fn (Violation $violation): bool => $violation->criterion?->category === 'sedang')
+            ->pluck('id')
+            ->all();
+        $beratViolationIds = $violations
+            ->filter(fn (Violation $violation): bool => $violation->criterion?->category === 'berat')
+            ->pluck('id')
+            ->all();
+
+        $jamaahViolationId = $violations
+            ->first(fn (Violation $violation): bool => str_contains(strtolower($violation->name), 'jamaah'))
+            ?->id;
+
+        foreach ($students->values() as $position => $student) {
+            $studentNumber = $position + 1;
+
+            if ($studentNumber <= 30) {
+                $profile = 'high';
+                $eventCount = random_int(6, 10);
+            } elseif ($studentNumber <= 65) {
+                $profile = 'medium';
+                $eventCount = random_int(3, 6);
+            } else {
+                $profile = 'low';
+                $eventCount = random_int(0, 3);
+            }
+
+            $baseDate = Carbon::parse('2026-01-01')->addDays($studentNumber * 2);
+
+            for ($eventIndex = 0; $eventIndex < $eventCount; $eventIndex++) {
+                $violationId = $this->resolveViolationId(
+                    $profile,
+                    $ringanViolationIds,
+                    $sedangViolationIds,
+                    $beratViolationIds,
+                    $allViolationIds,
+                );
+
+                StudentViolation::query()->create([
                     'student_id' => $student->id,
                     'violation_id' => $violationId,
-                    'occurred_at' => $occurredAt->toDateString(),
-                ],
-                [
-                    'notes' => 'Data uji seeder #'.($index + 1),
-                ],
-            );
+                    'occurred_at' => $baseDate->copy()->addDays($eventIndex)->toDateString(),
+                    'notes' => 'Data uji seeder '.$profile.' #'.$studentNumber.'-'.($eventIndex + 1),
+                ]);
+            }
+
+            if ($jamaahViolationId !== null) {
+                $shouldAddJamaah = ($profile === 'high' && random_int(1, 100) <= 90)
+                    || ($profile === 'medium' && random_int(1, 100) <= 45)
+                    || ($profile === 'low' && random_int(1, 100) <= 20);
+
+                if ($shouldAddJamaah) {
+                    StudentViolation::query()->create([
+                        'student_id' => $student->id,
+                        'violation_id' => $jamaahViolationId,
+                        'occurred_at' => $baseDate->copy()->addDays($eventCount + 1)->toDateString(),
+                        'notes' => 'Data uji seeder jamaah #'.$studentNumber,
+                    ]);
+                }
+            }
         }
 
         app(StudentPreprocessingService::class)->processAll();
         app(NaiveBayesPredictionService::class)->predictAll();
+    }
+
+    private function resolveViolationId(
+        string $profile,
+        array $ringanViolationIds,
+        array $sedangViolationIds,
+        array $beratViolationIds,
+        array $allViolationIds,
+    ): int {
+        $random = random_int(1, 100);
+
+        if ($profile === 'high') {
+            if ($random <= 50) {
+                return $this->pickViolationId($beratViolationIds, $allViolationIds);
+            }
+
+            if ($random <= 80) {
+                return $this->pickViolationId($sedangViolationIds, $allViolationIds);
+            }
+
+            return $this->pickViolationId($ringanViolationIds, $allViolationIds);
+        }
+
+        if ($profile === 'medium') {
+            if ($random <= 20) {
+                return $this->pickViolationId($beratViolationIds, $allViolationIds);
+            }
+
+            if ($random <= 60) {
+                return $this->pickViolationId($sedangViolationIds, $allViolationIds);
+            }
+
+            return $this->pickViolationId($ringanViolationIds, $allViolationIds);
+        }
+
+        if ($random <= 10) {
+            return $this->pickViolationId($sedangViolationIds, $allViolationIds);
+        }
+
+        return $this->pickViolationId($ringanViolationIds, $allViolationIds);
+    }
+
+    private function pickViolationId(array $candidateViolationIds, array $fallbackViolationIds): int
+    {
+        $source = $candidateViolationIds !== [] ? $candidateViolationIds : $fallbackViolationIds;
+
+        return (int) $source[array_rand($source)];
     }
 }
