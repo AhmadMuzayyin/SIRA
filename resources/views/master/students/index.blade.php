@@ -123,23 +123,32 @@
                         <option value="P">Perempuan</option>
                     </select>
                 </div>
-                <div>
-                    <label class="mb-1 block text-sm font-medium">Kamar</label>
-                    <select name="room" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
-                        <option value="">Pilih Kamar</option>
-                        @foreach($rooms as $code => $name)
-                            <option value="{{ $code }}">{{ $name }}</option>
-                        @endforeach
+                <div x-data="{ type: 'room' }">
+                    <label class="mb-1 block text-sm font-medium">Asrama</label>
+                    <select name="type" x-model="type" class="mb-3 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                        <option value="room">Kamar</option>
+                        <option value="lembaga">Lembaga</option>
                     </select>
-                </div>
-                <div>
-                    <label class="mb-1 block text-sm font-medium">Lembaga</label>
-                    <select name="lembaga" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
-                        <option value="">Pilih Lembaga</option>
-                        @foreach($lembagas as $code => $name)
-                            <option value="{{ $code }}">{{ $name }}</option>
-                        @endforeach
-                    </select>
+
+                    <div x-show="type === 'room'">
+                        <label class="mb-1 block text-sm font-medium">Kamar</label>
+                        <select name="room" x-bind:required="type === 'room'" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                            <option value="">Pilih Kamar</option>
+                            @foreach($rooms as $code => $name)
+                                <option value="{{ $code }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div x-show="type === 'lembaga'">
+                        <label class="mb-1 block text-sm font-medium">Lembaga</label>
+                        <select name="lembaga" x-bind:required="type === 'lembaga'" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                            <option value="">Pilih Lembaga</option>
+                            @foreach($lembagas as $code => $name)
+                                <option value="{{ $code }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium">Status</label>
@@ -218,23 +227,32 @@
                             <option value="P" @selected($student->gender === 'P')>Perempuan</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="mb-1 block text-sm font-medium">Kamar</label>
-                        <select name="room" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
-                            <option value="">Pilih Kamar</option>
-                            @foreach($rooms as $code => $name)
-                                <option value="{{ $code }}" @selected($student->room === $code)>{{ $name }}</option>
-                            @endforeach
+                    <div x-data="{ type: '{{ $student->lembaga ? 'lembaga' : 'room' }}' }">
+                        <label class="mb-1 block text-sm font-medium">Asrama</label>
+                        <select name="type" x-model="type" class="mb-3 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                            <option value="room">Kamar</option>
+                            <option value="lembaga">Lembaga</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-sm font-medium">Lembaga</label>
-                        <select name="lembaga" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
-                            <option value="">Pilih Lembaga</option>
-                            @foreach($lembagas as $code => $name)
-                                <option value="{{ $code }}" @selected($student->lembaga === $code)>{{ $name }}</option>
-                            @endforeach
-                        </select>
+
+                        <div x-show="type === 'room'">
+                            <label class="mb-1 block text-sm font-medium">Kamar</label>
+                            <select name="room" x-bind:required="type === 'room'" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                                <option value="">Pilih Kamar</option>
+                                @foreach($rooms as $code => $name)
+                                    <option value="{{ $code }}" @selected($student->room === $code)>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div x-show="type === 'lembaga'">
+                            <label class="mb-1 block text-sm font-medium">Lembaga</label>
+                            <select name="lembaga" x-bind:required="type === 'lembaga'" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                                <option value="">Pilih Lembaga</option>
+                                @foreach($lembagas as $code => $name)
+                                    <option value="{{ $code }}" @selected($student->lembaga === $code)>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <select name="status"
                         class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
