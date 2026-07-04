@@ -31,9 +31,14 @@ class StudentController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $rooms = Student::ROOMS;
+        $lembagas = Student::LEMBAGAS;
+
         return view('master.students.index', [
             'students' => $students,
             'keyword' => $keyword,
+            'rooms' => $rooms,
+            'lembagas' => $lembagas,
         ]);
     }
 

@@ -41,6 +41,11 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="w-full md:max-w-sm">
+                    <label class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Cari Kata Kunci</label>
+                    <input type="text" name="q" value="{{ $keyword ?? '' }}" placeholder="Nama / NIS / Pelanggaran"
+                        class="mt-2 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" />
+                </div>
                 <button type="submit"
                     class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 dark:border-zinc-700 dark:text-zinc-200">Terapkan</button>
             </form>

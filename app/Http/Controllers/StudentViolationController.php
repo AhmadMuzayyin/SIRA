@@ -17,10 +17,19 @@ class StudentViolationController extends Controller
     public function index(Request $request): View
     {
         $studentId = $request->integer('student_id');
+        $keyword = trim((string) $request->string('q'));
 
         $studentViolations = StudentViolation::query()
             ->with(['student', 'violation.criterion'])
             ->when($studentId > 0, fn ($query) => $query->where('student_id', $studentId))
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->whereHas('student', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%")
+                        ->orWhere('nis', 'like', "%{$keyword}%");
+                })->orWhereHas('violation', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
             ->orderByDesc('occurred_at')
             ->paginate(10)
             ->withQueryString();
@@ -30,6 +39,7 @@ class StudentViolationController extends Controller
             'students' => Student::query()->active()->orderBy('name')->get(['id', 'name', 'nis']),
             'violations' => Violation::query()->with('criterion')->orderBy('code')->get(),
             'selectedStudentId' => $studentId,
+            'keyword' => $keyword,
         ]);
     }
 

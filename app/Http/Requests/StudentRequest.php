@@ -21,8 +21,9 @@ class StudentRequest extends FormRequest
         return [
             'nis' => ['required', 'string', 'max:255', Rule::unique('students', 'nis')->ignore($studentId)],
             'name' => ['required', 'string', 'max:255'],
-            'gender' => ['nullable', 'string', 'max:50'],
-            'room' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:50', Rule::in(['L', 'P'])],
+            'room' => ['nullable', 'string', Rule::in(array_keys(Student::ROOMS))],
+            'lembaga' => ['nullable', 'string', Rule::in(array_keys(Student::LEMBAGAS))],
             'status' => ['required', Rule::in(['aktif', 'nonaktif'])],
         ];
     }

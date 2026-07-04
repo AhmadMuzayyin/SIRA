@@ -48,6 +48,7 @@
                             <th class="px-2 py-2">Nama</th>
                             <th class="px-2 py-2">Gender</th>
                             <th class="px-2 py-2">Kamar</th>
+                            <th class="px-2 py-2">Lembaga</th>
                             <th class="px-2 py-2">Status</th>
                             <th class="px-2 py-2">Aksi</th>
                         </tr>
@@ -57,8 +58,9 @@
                             <tr class="border-b border-zinc-100 dark:border-zinc-800">
                                 <td class="px-2 py-2">{{ $student->nis }}</td>
                                 <td class="px-2 py-2">{{ $student->name }}</td>
-                                <td class="px-2 py-2">{{ $student->gender ?? '-' }}</td>
-                                <td class="px-2 py-2">{{ $student->room ?? '-' }}</td>
+                                <td class="px-2 py-2">{{ $student->gender == 'L' ? 'Laki-laki' : ($student->gender == 'P' ? 'Perempuan' : '-') }}</td>
+                                <td class="px-2 py-2">{{ $student->room ? ($rooms[$student->room] ?? $student->room) : '-' }}</td>
+                                <td class="px-2 py-2">{{ $student->lembaga ? ($lembagas[$student->lembaga] ?? $student->lembaga) : '-' }}</td>
                                 <td class="px-2 py-2">{{ $student->status }}</td>
                                 <td class="px-2 py-2">
                                     <div class="flex gap-2">
@@ -103,7 +105,7 @@
                 @csrf
                 <div>
                     <label class="mb-1 block text-sm font-medium">NIS</label>
-                    <input type="text" name="nis"
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" name="nis"
                         class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
                         required>
                 </div>
@@ -115,13 +117,29 @@
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium">Jenis Kelamin</label>
-                    <input type="text" name="gender" placeholder="L/P"
-                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                    <select name="gender" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium">Kamar</label>
-                    <input type="text" name="room"
-                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                    <select name="room" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
+                        <option value="">Pilih Kamar</option>
+                        @foreach($rooms as $code => $name)
+                            <option value="{{ $code }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium">Lembaga</label>
+                    <select name="lembaga" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
+                        <option value="">Pilih Lembaga</option>
+                        @foreach($lembagas as $code => $name)
+                            <option value="{{ $code }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium">Status</label>
@@ -186,16 +204,38 @@
                 <form method="POST" action="{{ route('students.update', $student) }}" class="space-y-3">
                     @csrf
                     @method('PUT')
-                    <input type="text" name="nis" value="{{ $student->nis }}"
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" name="nis" value="{{ $student->nis }}"
                         class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
                         required>
                     <input type="text" name="name" value="{{ $student->name }}"
                         class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800"
                         required>
-                    <input type="text" name="gender" value="{{ $student->gender }}"
-                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
-                    <input type="text" name="room" value="{{ $student->room }}"
-                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium">Jenis Kelamin</label>
+                        <select name="gender" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
+                            <option value="">Pilih Jenis Kelamin</option>
+                            <option value="L" @selected($student->gender === 'L')>Laki-laki</option>
+                            <option value="P" @selected($student->gender === 'P')>Perempuan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium">Kamar</label>
+                        <select name="room" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
+                            <option value="">Pilih Kamar</option>
+                            @foreach($rooms as $code => $name)
+                                <option value="{{ $code }}" @selected($student->room === $code)>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium">Lembaga</label>
+                        <select name="lembaga" class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800" required>
+                            <option value="">Pilih Lembaga</option>
+                            @foreach($lembagas as $code => $name)
+                                <option value="{{ $code }}" @selected($student->lembaga === $code)>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <select name="status"
                         class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800">
                         <option value="aktif" @selected($student->status === 'aktif')>aktif</option>
