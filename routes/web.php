@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('students', StudentController::class)->except(['create', 'show', 'edit']);
+    Route::patch('students/{student}/status', [StudentController::class, 'updateStatus'])->name('students.update-status');
     Route::post('students/import', [StudentController::class, 'import'])->name('students.import');
     Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
 

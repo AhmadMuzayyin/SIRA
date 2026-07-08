@@ -9,10 +9,10 @@
                 <a href="{{ route('student-violations.export') }}"
                     class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 dark:border-zinc-700 dark:text-zinc-200">Export
                     Pelanggaran Santri (Excel)</a>
-                <a href="{{ route('reports.excel') }}"
+                <a href="{{ route('reports.excel', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
                     class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 dark:border-zinc-700 dark:text-zinc-200">Export
                     Prediksi & Ranking (Excel)</a>
-                <a href="{{ route('reports.pdf') }}"
+                <a href="{{ route('reports.pdf', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
                     class="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900">Export
                     Prediksi & Ranking (PDF)</a>
             </div>

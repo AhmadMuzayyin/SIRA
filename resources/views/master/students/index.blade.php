@@ -61,7 +61,20 @@
                                 <td class="px-2 py-2">{{ $student->gender == 'L' ? 'Laki-laki' : ($student->gender == 'P' ? 'Perempuan' : '-') }}</td>
                                 <td class="px-2 py-2">{{ $student->room ? ($rooms[$student->room] ?? $student->room) : '-' }}</td>
                                 <td class="px-2 py-2">{{ $student->lembaga ? ($lembagas[$student->lembaga] ?? $student->lembaga) : '-' }}</td>
-                                <td class="px-2 py-2">{{ $student->status }}</td>
+                                <td class="px-2 py-2">
+                                    <form method="POST" action="{{ route('students.update-status', $student) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="nonaktif">
+                                        
+                                        <label class="relative inline-flex cursor-pointer items-center" title="Ubah status">
+                                            <input type="checkbox" name="status" value="aktif" class="peer sr-only"
+                                                {{ $student->status === 'aktif' ? 'checked' : '' }}
+                                                onchange="this.form.submit()">
+                                            <div class="peer h-5 w-9 rounded-full bg-zinc-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-zinc-600 dark:bg-zinc-700 dark:peer-focus:ring-emerald-800"></div>
+                                        </label>
+                                    </form>
+                                </td>
                                 <td class="px-2 py-2">
                                     <div class="flex gap-2">
                                         <button type="button"

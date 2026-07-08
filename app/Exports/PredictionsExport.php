@@ -9,10 +9,19 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class PredictionsExport implements FromCollection, WithHeadings
 {
+    public function __construct(
+        protected string $startDate = '',
+        protected string $endDate = ''
+    ) {}
+
     public function collection(): Collection
     {
         return StudentPrediction::query()
             ->with(['student', 'suggestedViolation'])
+            ->whereHas('student.studentViolations', function ($query) {
+                $query->when($this->startDate !== '', fn ($q) => $q->whereDate('created_at', '>=', $this->startDate))
+                    ->when($this->endDate !== '', fn ($q) => $q->whereDate('created_at', '<=', $this->endDate));
+            })
             ->orderByDesc('rank_score')
             ->get()
             ->map(fn (StudentPrediction $prediction): array => [

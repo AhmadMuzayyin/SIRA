@@ -9,6 +9,7 @@ use App\Imports\StudentsImport;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -54,6 +55,17 @@ class StudentController extends Controller
         $student->update($request->validated());
 
         return back()->with('status', 'Data santri berhasil diperbarui.');
+    }
+
+    public function updateStatus(Request $request, Student $student): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['aktif', 'nonaktif'])],
+        ]);
+
+        $student->update($validated);
+
+        return back()->with('status', 'Status santri berhasil diperbarui.');
     }
 
     public function destroy(Student $student): RedirectResponse
