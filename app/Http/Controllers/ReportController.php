@@ -73,7 +73,7 @@ class ReportController extends Controller
         return Pdf::loadView('reports.pdf', [
             'summary' => $summary,
             'topRisk' => $topRisk,
-        ])->download('laporan-sira.pdf');
+        ])->download('laporan-sipesa.pdf');
     }
 
     public function excel(Request $request)
@@ -81,6 +81,6 @@ class ReportController extends Controller
         $startDate = $request->has('start_date') ? (string) $request->string('start_date') : now()->toDateString();
         $endDate = $request->has('end_date') ? (string) $request->string('end_date') : now()->toDateString();
 
-        return Excel::download(new PredictionsExport($startDate, $endDate), 'laporan-prediksi.xlsx');
+        return Excel::download(new PredictionsExport($startDate, $endDate), 'laporan-sipesa.xlsx');
     }
 }

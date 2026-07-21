@@ -16,7 +16,7 @@
                           <path d="m9 12 2 2 4-4"/>
                         </svg>
                     </span>
-                    {{ config('app.name', 'SIPESA') }}
+                    SIPESA
                 </a>
 
                 <div class="relative z-20 mt-auto">

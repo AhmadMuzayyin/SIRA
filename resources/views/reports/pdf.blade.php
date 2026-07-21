@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Laporan SIRA</title>
+    <title>Laporan SIPESA</title>
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
@@ -52,7 +52,7 @@
 </head>
 
 <body>
-    <h1>Laporan Sistem SIRA</h1>
+    <h1>Laporan Sistem SIPESA</h1>
     <p>Dihasilkan pada {{ now()->format('d-m-Y H:i') }}</p>
 
     <div class="grid">
